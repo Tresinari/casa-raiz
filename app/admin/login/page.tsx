@@ -21,6 +21,7 @@ export default function LoginPage() {
     const { error } = await supabase.auth.signInWithPassword({ email, password: senha })
 
     if (error) {
+      console.log('Erro completo:', error)
       setErro('E-mail ou senha inválidos.')
       setLoading(false)
       return

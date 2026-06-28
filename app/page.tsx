@@ -33,24 +33,24 @@ export default async function Home() {
       <main>
 
         {/* HERO */}
-        <section className="bg-forest relative overflow-hidden py-20 px-4 text-center"
+        <section className="bg-[#7b3728] relative overflow-hidden py-20 px-4 text-center"
           style={{ backgroundImage: 'repeating-linear-gradient(45deg,transparent,transparent 20px,rgba(255,255,255,.015) 20px,rgba(255,255,255,.015) 40px)' }}>
           <div className="absolute inset-0 bg-radial-gradient pointer-events-none" />
 
-          <p className="text-[11px] tracking-[0.25em] uppercase text-gold-light mb-4 relative">
+          <p className="text-[11px] tracking-[0.25em] uppercase text-[#F4D8C5] mb-4 relative">
             Tradição · Lar · Acolhimento
           </p>
 
-          <h1 className="font-serif text-4xl md:text-6xl font-medium text-off-white leading-tight mb-5 relative">
-            Enxovais que<br />
-            <em className="text-gold-light">abraçam a casa</em>
+          <h1 className="font-serif text-4xl md:text-6xl font-medium text-[#ffd79f] leading-tight mb-5 relative">
+            Da nossa raiz<br />
+            <em className="text-[#ffd79f]">para a sua casa</em>
           </h1>
 
-          <p className="text-off-white/70 max-w-md mx-auto mb-8 font-light text-[15px] relative">
-            Cada peça escolhida com cuidado para transformar seu lar num lugar de aconchego e memórias.
+          <p className="text-[#F4D8C5] max-w-md mx-auto mb-8 font-light text-[25px] relative">
+            Design, afeto e tradição em cada detalhe
           </p>
 
-          <Link href="/loja" className="btn-gold relative">
+          <Link href="/loja" className="bg-[#E8C97A] text-[#7b3728] text-xs tracking-widest uppercase px-6 py-3 rounded transition-colors hover:bg-bark inline-block relative">
             Explorar coleção
           </Link>
         </section>
@@ -99,7 +99,7 @@ export default async function Home() {
         </section>
 
         {/* NEWSLETTER */}
-        <section className="bg-bark text-off-white py-16 px-4 text-center">
+        <section className="bg-[#7b3728] text-off-white py-16 px-4 text-center">
           <h2 className="font-serif text-3xl font-medium mb-2">
             Receba novidades e<br />ofertas exclusivas
           </h2>

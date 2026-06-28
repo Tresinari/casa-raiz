@@ -18,6 +18,7 @@ module.exports = {
         'text-mid':   '#5C4E38',
         'text-light': '#8A7A60',
         'off-white':  '#FDFAF5',
+        'gold-cta': '#E8C97A',
       },
       fontFamily: {
         serif: ['var(--font-cormorant)', 'Georgia', 'serif'],
