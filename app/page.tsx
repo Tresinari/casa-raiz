@@ -50,29 +50,51 @@ export default async function Home() {
             Design, afeto e tradição em cada detalhe
           </p>
 
-          <Link href="/loja" className="bg-[#E8C97A] text-[#7b3728] text-xs tracking-widest uppercase px-6 py-3 rounded transition-colors hover:bg-bark inline-block relative">
+          <Link href="/loja" className="bg-[#E8C97A] text-[#7b3728] text-xs tracking-widest uppercase px-6 py-3 rounded transition-colors hover:bg-[#D4B560] inline-block relative">
             Explorar coleção
           </Link>
         </section>
 
         {/* CATEGORIAS */}
-        <section className="max-w-6xl mx-auto px-4 py-16">
-          <h2 className="font-serif text-2xl font-medium text-forest mb-1">Nossas categorias</h2>
-          <p className="text-sm text-text-light mb-8">Encontre o que sua casa precisa</p>
+<section className="max-w-6xl mx-auto px-4 py-16">
+  <h2 className="font-serif text-2xl font-medium text-forest mb-1">Nossas categorias</h2>
+  <p className="text-sm text-text-light mb-8">Encontre o que sua casa precisa</p>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
-            {CATEGORIAS.map(cat => (
-              <Link
-                key={cat.slug}
-                href={`/loja?categoria=${cat.slug}`}
-                className="bg-off-white border border-linen rounded p-5 text-center hover:border-forest hover:-translate-y-0.5 transition-all"
-              >
-                <div className="text-2xl mb-2">{cat.icon}</div>
-                <div className="font-medium text-sm text-text-dark">{cat.nome}</div>
-              </Link>
-            ))}
+  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+    {CATEGORIAS.map(cat => (
+      <Link
+        key={cat.slug}
+        href={`/loja?categoria=${cat.slug}`}
+        className="group relative overflow-hidden rounded-lg border border-linen hover:border-[#7b3728] transition-all hover:-translate-y-1 hover:shadow-lg"
+        style={{ height: '200px' }}
+      >
+        {/* Imagem de fundo */}
+        <div
+          className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
+          style={{ backgroundImage: `url('/categorias/${cat.slug}.jpg')` }}
+        />
+
+        {/* Fallback enquanto não tem imagem */}
+        <div className="absolute inset-0 bg-[#EDE6D6] flex items-center justify-center -z-10">
+          <span className="text-4xl opacity-30">{cat.icon}</span>
+        </div>
+
+        {/* Gradiente escuro na base */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#2E1208]/80 via-[#2E1208]/20 to-transparent" />
+
+        {/* Texto */}
+        <div className="absolute bottom-0 left-0 right-0 p-3">
+          <div className="font-serif text-base font-medium text-[#F4D8C5] leading-tight">
+            {cat.nome}
           </div>
-        </section>
+          <div className="text-[10px] tracking-widest uppercase text-[#E8C97A] mt-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            Ver produtos →
+          </div>
+        </div>
+      </Link>
+    ))}
+  </div>
+</section>
 
         {/* DESTAQUES */}
         <section className="bg-[#EDE6D6] py-16 px-4">
@@ -115,7 +137,7 @@ export default async function Home() {
         </section>
 
         {/* FOOTER */}
-        <footer className="bg-text-dark text-off-white py-12 px-4">
+        <footer className="bg-[#2E1208] text-off-white py-12 px-4">
           <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
             <div>
               <span className="font-serif text-xl font-semibold block mb-3">
@@ -125,22 +147,48 @@ export default async function Home() {
                 Enxovais domésticos com a qualidade e o aconchego que sua família merece.
               </p>
             </div>
-            {[
-              { title: 'Produtos', links: ['Mantas', 'Tapetes', 'Almofadas', 'Cama', 'Mesa Posta'] },
-              { title: 'Atendimento', links: ['WhatsApp', 'Política de trocas', 'Frete e entrega', 'FAQ'] },
-              { title: 'Contato', links: ['@casaraizmk', 'São Paulo, SP'] },
-            ].map(col => (
-              <div key={col.title}>
-                <h4 className="text-[11px] tracking-widest uppercase text-gold-light mb-4 font-sans">{col.title}</h4>
-                <ul className="space-y-2">
-                  {col.links.map(l => (
-                    <li key={l}>
-                      <span className="text-sm text-off-white/60 hover:text-off-white transition-colors cursor-pointer">{l}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
+{[
+  {
+    title: 'Produtos',
+    links: [
+      { label: 'Mantas',     href: '/loja?categoria=mantas' },
+      { label: 'Tapetes',    href: '/loja?categoria=tapetes' },
+      { label: 'Almofadas',  href: '/loja?categoria=almofadas' },
+      { label: 'Cama',       href: '/loja?categoria=cama' },
+      { label: 'Mesa Posta', href: '/loja?categoria=mesa' },
+    ]
+  },
+  {
+    title: 'Atendimento',
+    links: [
+      { label: 'WhatsApp', href: 'https://wa.me/5511999999999' },
+    ]
+  },
+  {
+    title: 'Contato',
+    links: [
+      { label: '@casaraizmk', href: 'https://instagram.com/casaraizmk' },
+    ]
+  },
+].map(col => (
+  <div key={col.title}>
+    <h4 className="text-[11px] tracking-widest uppercase text-[#E8C97A] mb-4 font-sans">{col.title}</h4>
+    <ul className="space-y-2">
+      {col.links.map(l => (
+        <li key={l.label}>
+          <Link
+            href={l.href}
+            target={l.href.startsWith('http') ? '_blank' : undefined}
+            rel={l.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+            className="text-sm text-off-white/60 hover:text-[#E8C97A] transition-colors"
+          >
+            {l.label}
+          </Link>
+        </li>
+      ))}
+    </ul>
+  </div>
+))}
           </div>
           <div className="border-t border-off-white/10 pt-6 text-center text-xs text-off-white/40">
             © {new Date().getFullYear()} Casa Raiz — Todos os direitos reservados

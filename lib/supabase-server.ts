@@ -1,9 +1,6 @@
-// lib/supabase-server.ts
-// Cliente do Supabase para Server Components e API Routes
-
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
+import { createClient } from '@supabase/supabase-js'
 import { cookies } from 'next/headers'
-import { createClient, processLock } from '@supabase/supabase-js'
 
 export function createServerSupabase() {
   const cookieStore = cookies()
@@ -17,16 +14,25 @@ export function createServerSupabase() {
           return cookieStore.get(name)?.value
         },
         set(name: string, value: string, options: CookieOptions) {
-          cookieStore.set({ name, value, ...options })
+          try {
+            cookieStore.set({ name, value, ...options })
+          } catch {
+            // Server Component — não pode escrever cookies, ignora silenciosamente
+          }
         },
         remove(name: string, options: CookieOptions) {
-          cookieStore.set({ name, value: '', ...options })
+          try {
+            cookieStore.set({ name, value: '', ...options })
+          } catch {
+            // Server Component — não pode escrever cookies, ignora silenciosamente
+          }
         },
       },
     }
   )
 }
 
+// Cliente com service role — ignora RLS, só usar em API routes
 export function createServiceSupabase() {
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
