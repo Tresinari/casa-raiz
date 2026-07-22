@@ -59,11 +59,21 @@ export default function AdminProdutosPage() {
     <div className="min-h-screen bg-cream">
 
       {/* Header Admin */}
+      
       <header className="bg-forest text-off-white px-6 py-4 flex items-center justify-between">
         <div>
           <span className="font-serif text-xl font-medium">Casa <span className="text-gold-light">Raiz</span></span>
           <span className="text-off-white/50 text-sm ml-3">Admin</span>
         </div>
+        <nav className="hidden md:flex gap-4">
+          <button className="text-sm text-off-white font-medium border-b border-gold">
+            Produtos
+          </button>
+          <button onClick={() => router.push('/admin/pedidos')}
+            className="text-sm text-off-white/60 hover:text-off-white transition-colors">
+            Pedidos
+          </button>
+        </nav>
         <div className="flex gap-4 items-center">
           <Link href="/" target="_blank" className="text-sm text-off-white/70 hover:text-off-white transition-colors">
             Ver loja ↗
@@ -72,6 +82,7 @@ export default function AdminProdutosPage() {
             Sair
           </button>
         </div>
+        
       </header>
 
       <main className="max-w-5xl mx-auto px-4 py-8">

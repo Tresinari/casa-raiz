@@ -57,7 +57,7 @@ export default async function Home() {
 
         {/* CATEGORIAS */}
 <section className="max-w-6xl mx-auto px-4 py-16">
-  <h2 className="font-serif text-2xl font-medium text-forest mb-1">Nossas categorias</h2>
+  <h2 className="font-serif text-2xl font-medium text-forest mb-1">Categorias</h2>
   <p className="text-sm text-text-light mb-8">Encontre o que sua casa precisa</p>
 
   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
@@ -161,7 +161,7 @@ export default async function Home() {
   {
     title: 'Atendimento',
     links: [
-      { label: 'WhatsApp', href: 'https://wa.me/5511999999999' },
+      { label: 'WhatsApp', href: 'https://wa.link/2ohi1o' },
     ]
   },
   {
