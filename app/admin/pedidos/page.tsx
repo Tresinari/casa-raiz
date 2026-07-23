@@ -16,6 +16,7 @@ type Pedido = {
   cliente_telefone?: string
   mp_payment_id?: string
   criado_em: string
+  codigo_rastreio: string
 }
 
 const STATUS_CONFIG = {
@@ -23,6 +24,52 @@ const STATUS_CONFIG = {
   aprovado:  { label: 'Aprovado',  bg: 'bg-green-100',  text: 'text-green-800',  border: 'border-green-200' },
   enviado:   { label: 'Enviado',   bg: 'bg-blue-100',   text: 'text-blue-800',   border: 'border-blue-200' },
   cancelado: { label: 'Cancelado', bg: 'bg-red-100',    text: 'text-red-800',    border: 'border-red-200' },
+}
+
+function RastreioForm({ pedido }: { pedido: Pedido }) {
+  const [codigo, setCodigo] = useState(pedido.codigo_rastreio || '')
+  const [enviando, setEnviando] = useState(false)
+  const [enviado, setEnviado] = useState(false)
+  const supabase = createClient()
+
+  async function handleEnviar() {
+    if (!codigo.trim()) return
+    setEnviando(true)
+
+    // Salva no banco e muda status para "enviado"
+    await supabase
+      .from('pedidos')
+      .update({ codigo_rastreio: codigo, status: 'enviado' })
+      .eq('id', pedido.id)
+
+    // Dispara o e-mail com o código
+    await fetch(`/api/pedidos/${pedido.id}/rastreio`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ codigo }),
+    })
+
+    setEnviando(false)
+    setEnviado(true)
+  }
+
+  return (
+    <div className="flex gap-2">
+      <input
+        className="input flex-1 text-sm"
+        placeholder="Ex: BR123456789BR"
+        value={codigo}
+        onChange={e => setCodigo(e.target.value.toUpperCase())}
+      />
+      <button
+        onClick={handleEnviar}
+        disabled={enviando || !codigo.trim()}
+        className="btn-primary text-xs py-2 px-3 disabled:opacity-50 whitespace-nowrap"
+      >
+        {enviado ? '✓ Enviado!' : enviando ? '...' : 'Enviar e-mail'}
+      </button>
+    </div>
+  )
 }
 
 export default function AdminPedidosPage() {
@@ -331,6 +378,14 @@ export default function AdminPedidosPage() {
                     </button>
                   ))}
                 </div>
+              </div>
+
+              {/* Código de rastreio */}
+              <div>
+                <h3 className="text-xs tracking-wider uppercase text-text-light mb-2">
+                  Código de rastreio
+                </h3>
+                <RastreioForm pedido={pedidoAberto} />
               </div>
 
               {/* ID do pagamento MP */}

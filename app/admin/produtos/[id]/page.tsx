@@ -6,7 +6,7 @@ import { useRouter, useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 import { gerarSlug } from '@/lib/types'
 
-const CATEGORIAS = ['Mantas', 'Tapetes', 'Almofadas', 'Cama', 'Mesa']
+const CATEGORIAS = ['Louças', 'Tapetes', 'Almofadas', 'Artigos de Decoração', 'Peseiras ou Mantas']
 
 export default function EditarProdutoPage() {
   const router = useRouter()
@@ -25,7 +25,7 @@ export default function EditarProdutoPage() {
     descricao: '',
     preco: '',
     preco_original: '',
-    categoria: 'Mantas',
+    categoria: 'Louças',
     estoque: '0',
     ativo: true,
     destaque: false,

@@ -4,13 +4,14 @@ import { createServerSupabase } from '@/lib/supabase-server'
 import CardProduto from '@/components/loja/CardProduto'
 import Header from '@/components/loja/Header'
 import type { Produto } from '@/lib/types'
+import FormNewsletter from '@/components/loja/FormNewsletter'
 
 const CATEGORIAS = [
-  { nome: 'Mantas',    icon: '🧣', slug: 'mantas' },
-  { nome: 'Tapetes',   icon: '🪄', slug: 'tapetes' },
+  { nome: 'Louças',    icon: '🍽️', slug: 'louças' },
+  { nome: 'Tapetes',   icon: '🏡', slug: 'tapetes' },
   { nome: 'Almofadas', icon: '🛋️', slug: 'almofadas' },
-  { nome: 'Cama',      icon: '🛏️', slug: 'cama' },
-  { nome: 'Mesa',      icon: '🍽️', slug: 'mesa' },
+  { nome: 'Artigos de Decoração', icon: '🏺', slug: 'artigos%20de%20decoração' },
+  { nome: 'Peseiras ou Mantas', icon: '🧶', slug: 'peseiras%20ou%20mantas' },
 ]
 
 export default async function Home() {
@@ -126,14 +127,7 @@ export default async function Home() {
             Receba novidades e<br />ofertas exclusivas
           </h2>
           <p className="text-off-white/75 mb-6">Cadastre-se e ganhe 10% de desconto na primeira compra</p>
-          <form className="flex gap-2 max-w-sm mx-auto">
-            <input
-              type="email"
-              placeholder="seu@email.com"
-              className="flex-1 px-4 py-2.5 rounded bg-white/10 border border-off-white/30 text-off-white placeholder-off-white/50 text-sm focus:outline-none focus:border-gold-light"
-            />
-            <button type="submit" className="btn-gold whitespace-nowrap py-2.5">Quero!</button>
-          </form>
+          <FormNewsletter />
         </section>
 
         {/* FOOTER */}
@@ -151,11 +145,11 @@ export default async function Home() {
   {
     title: 'Produtos',
     links: [
-      { label: 'Mantas',     href: '/loja?categoria=mantas' },
+      { label: 'Louças',     href: '/loja?categoria=louças' },
       { label: 'Tapetes',    href: '/loja?categoria=tapetes' },
       { label: 'Almofadas',  href: '/loja?categoria=almofadas' },
-      { label: 'Cama',       href: '/loja?categoria=cama' },
-      { label: 'Mesa Posta', href: '/loja?categoria=mesa' },
+      { label: 'Artigos de Decoração',       href: '/loja?categoria=artigos%20de%20decoração' },
+      { label: 'Peseiras ou Mantas', href: '/loja?categoria=peseiras%20ou%20mantas' },
     ]
   },
   {

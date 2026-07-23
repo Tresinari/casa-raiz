@@ -1,9 +1,8 @@
 // app/api/webhook/route.ts
-// Mercado Pago envia uma notificação aqui quando o pagamento é confirmado
-
 import { NextRequest, NextResponse } from 'next/server'
 import { MercadoPagoConfig, Payment } from 'mercadopago'
 import { createServiceSupabase } from '@/lib/supabase-server'
+import { enviarConfirmacaoPedido } from '@/lib/email'
 
 const mp = new MercadoPagoConfig({
   accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN!,
@@ -13,7 +12,6 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
 
-    // MP envia diferentes tipos de notificação — só nos interessa "payment"
     if (body.type !== 'payment') {
       return NextResponse.json({ ok: true })
     }
@@ -21,16 +19,14 @@ export async function POST(req: NextRequest) {
     const paymentId = body.data?.id
     if (!paymentId) return NextResponse.json({ ok: true })
 
-    // Busca os detalhes do pagamento no MP
     const payment = new Payment(mp)
     const pagamento = await payment.get({ id: paymentId })
 
     const pedidoId = pagamento.external_reference
-    const status = pagamento.status // approved | rejected | pending
+    const status = pagamento.status
 
     if (!pedidoId) return NextResponse.json({ ok: true })
 
-    // Mapeia o status do MP para o status da loja
     const statusMap: Record<string, string> = {
       approved: 'aprovado',
       rejected: 'cancelado',
@@ -38,6 +34,7 @@ export async function POST(req: NextRequest) {
     }
 
     const supabase = createServiceSupabase()
+
     await supabase
       .from('pedidos')
       .update({
@@ -46,21 +43,31 @@ export async function POST(req: NextRequest) {
       })
       .eq('id', pedidoId)
 
-    // Se aprovado, desconta o estoque
+    // Se aprovado: desconta estoque e envia e-mail
     if (status === 'approved') {
       const { data: pedido } = await supabase
         .from('pedidos')
-        .select('itens')
+        .select('*')
         .eq('id', pedidoId)
         .single()
 
-      if (pedido?.itens) {
+      if (pedido) {
+        // Desconta estoque
         for (const item of pedido.itens) {
           await supabase.rpc('decrementar_estoque', {
             produto_id: item.produto.id,
             quantidade: item.quantidade,
           })
         }
+
+        // Envia e-mail de confirmação
+        await enviarConfirmacaoPedido({
+          id: pedido.id,
+          cliente_nome: pedido.cliente_nome,
+          cliente_email: pedido.cliente_email,
+          total: pedido.total,
+          itens: pedido.itens,
+        })
       }
     }
 
@@ -68,7 +75,6 @@ export async function POST(req: NextRequest) {
 
   } catch (err: any) {
     console.error('Erro no webhook:', err)
-    // Sempre retorna 200 pro MP — se retornar erro, ele fica reenviant
     return NextResponse.json({ ok: true })
   }
 }

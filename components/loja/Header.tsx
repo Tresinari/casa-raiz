@@ -29,7 +29,7 @@ export default function Header() {
           </Link>
 
           <nav className="hidden md:flex gap-8">
-            {['Mantas', 'Tapetes', 'Almofadas', 'Cama', 'Mesa'].map(cat => (
+            {['Louças', 'Tapetes', 'Almofadas', 'Artigos de Decoração', 'Peseiras ou Mantas'].map(cat => (
               <Link
                 key={cat}
                 href={`/loja?categoria=${cat.toLowerCase()}`}

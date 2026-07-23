@@ -4,7 +4,7 @@ import CardProduto from '@/components/loja/CardProduto'
 import Header from '@/components/loja/Header'
 import type { Produto } from '@/lib/types'
 
-const CATEGORIAS = ['Todas', 'Mantas', 'Tapetes', 'Almofadas', 'Cama', 'Mesa']
+const CATEGORIAS = ['Todas', 'Louças', 'Tapetes', 'Almofadas', 'Artigos de Decoração', 'Peseiras ou Mantas']
 
 export default async function LojaPage({
   searchParams,
