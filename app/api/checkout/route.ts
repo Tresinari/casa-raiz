@@ -55,7 +55,9 @@ export async function POST(req: NextRequest) {
           currency_id: 'BRL',
         })),
         payment_methods: {
-          installments: 6, // Parcelamento em até 6x
+          excluded_payment_methods: [],
+          excluded_payment_types: [],
+          installments: 12, // Parcelamento em até 12x
         },
         back_urls: {
           success: `${baseUrl}/pedido/sucesso`,
