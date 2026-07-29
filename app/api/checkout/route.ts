@@ -76,7 +76,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ url: init_point })
 
   } catch (err: any) {
-    console.error('Erro no checkout:', err)
+    console.error('Erro detalhado no checkout:', {
+      message: err.message,
+      stack: err.stack,
+      cause: err.cause,
+    })
     return NextResponse.json(
       { erro: err.message || 'Erro interno' },
       { status: 500 }
