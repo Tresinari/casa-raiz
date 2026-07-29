@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
     await supabase
       .from('pedidos')
       .update({
-        status: statusMap[status] || 'pendente',
+        status: (status ? statusMap[status] : null) ?? 'pendente',
         mp_payment_id: String(paymentId),
       })
       .eq('id', pedidoId)
