@@ -10,8 +10,10 @@ const CATEGORIAS = [
   { nome: 'Louças',    icon: '🍽️', slug: 'louças' },
   { nome: 'Tapetes',   icon: '🏡', slug: 'tapetes' },
   { nome: 'Almofadas', icon: '🛋️', slug: 'almofadas' },
-  { nome: 'Artigos de Decoração', icon: '🏺', slug: 'artigos%20de%20decoração' },
+  { nome: 'Artigos Diversos', icon: '🏺', slug: 'artigos%20diversos' },
   { nome: 'Peseiras ou Mantas', icon: '🧶', slug: 'peseiras%20ou%20mantas' },
+  { nome: 'Mesa', icon: '🍽️', slug: 'mesa' },
+  { nome: 'Cama', icon: '🛏️', slug: 'cama' },
 ]
 
 export default async function Home() {
@@ -61,12 +63,12 @@ export default async function Home() {
   <h2 className="font-serif text-2xl font-medium text-forest mb-1">Categorias</h2>
   <p className="text-sm text-text-light mb-8">Encontre o que sua casa precisa</p>
 
-  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+  <div className="flex flex-wrap justify-center gap-3">
     {CATEGORIAS.map(cat => (
       <Link
         key={cat.slug}
         href={`/loja?categoria=${cat.slug}`}
-        className="group relative overflow-hidden rounded-lg border border-linen hover:border-[#7b3728] transition-all hover:-translate-y-1 hover:shadow-lg"
+        className="group relative overflow-hidden rounded-lg border border-linen hover:border-[#7b3728] transition-all hover:-translate-y-1 hover:shadow-lg w-[calc(50%-6px)] sm:w-[calc(33.333%-8px)] md:w-[180px]"
         style={{ height: '200px' }}
       >
         {/* Imagem de fundo */}
@@ -148,8 +150,10 @@ export default async function Home() {
       { label: 'Louças',     href: '/loja?categoria=louças' },
       { label: 'Tapetes',    href: '/loja?categoria=tapetes' },
       { label: 'Almofadas',  href: '/loja?categoria=almofadas' },
-      { label: 'Artigos de Decoração',       href: '/loja?categoria=artigos%20de%20decoração' },
+      { label: 'Artigos Diversos',       href: '/loja?categoria=artigos%20diversos' },
       { label: 'Peseiras ou Mantas', href: '/loja?categoria=peseiras%20ou%20mantas' },
+      { label: 'Mesa', href: '/loja?categoria=mesa'},
+      { label: 'Cama', href: '/loja?categoria=cama'},
     ]
   },
   {
