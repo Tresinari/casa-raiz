@@ -13,6 +13,10 @@ export type Produto = {
   ativo: boolean
   destaque: boolean
   criado_em: string
+  peso_gramas?: number
+  altura_cm?: number
+  largura_cm?: number
+  comprimento_cm?: number
 }
 
 export type ItemCarrinho = {

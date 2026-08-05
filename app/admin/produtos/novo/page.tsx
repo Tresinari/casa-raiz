@@ -25,6 +25,10 @@ export default function NovoProdutoPage() {
     estoque: '10',
     ativo: true,
     destaque: false,
+    peso_gramas: '500',
+    altura_cm: '10',
+    largura_cm: '30',
+    comprimento_cm: '40',
   })
 
   const [imagens, setImagens] = useState<string[]>([])
@@ -104,6 +108,10 @@ export default function NovoProdutoPage() {
       preco_original: precoOriginal,
       categoria: form.categoria,
       estoque: parseInt(form.estoque) || 0,
+      peso_gramas: parseInt(form.peso_gramas) || 500,
+      altura_cm: parseInt(form.altura_cm) || 10,
+      largura_cm: parseInt(form.largura_cm) || 30,
+      comprimento_cm: parseInt(form.comprimento_cm) || 40,
       ativo: form.ativo,
       destaque: form.destaque,
       imagens,
@@ -174,6 +182,31 @@ export default function NovoProdutoPage() {
             <label className="block text-xs tracking-wider uppercase text-text-light mb-1.5">Estoque</label>
             <input name="estoque" type="number" min="0" className="input" value={form.estoque}
               onChange={handleChange} />
+          </div>
+
+          <div>
+            <label className='block text-xs tracking-wider uppercase text-text-light mb-1.5'>
+              Dimensões e peso
+            </label>
+            <div className='grid grid-cols-2 gap-3'>
+              <div>
+                <label className='block text-[11px] text-text-light mb-1'>Peso (gramas)</label>
+                <input name="peso_gramas" type="number" min="1" className='input' value={form.peso_gramas} onChange={handleChange} placeholder='500'/>
+              </div>
+              <div>
+                <label className='block text-[11px] text-text-light mb-1'>Altura (cm)</label>
+                <input name="peso_gramas" type="number" min="1" className='input' value={form.altura_cm} onChange={handleChange} placeholder='10'/>
+              </div>
+              <div>
+                <label className='block text-[11px] text-text-light mb-1'>Largura (cm)</label>
+                <input name="peso_gramas" type="number" min="1" className='input' value={form.largura_cm} onChange={handleChange} placeholder='30'/>
+              </div>
+              <div>
+                <label className='block text-[11px] text-text-light mb-1'>Comprimento (cm)</label>
+                <input name="peso_gramas" type="number" min="1" className='input' value={form.comprimento_cm} onChange={handleChange} placeholder='40'/>
+              </div>
+            </div>
+            <p className='text-[11px] text-text-light mt-1.5'>Medidas da embalagem de envio, não do produto</p>
           </div>
 
           {/* Descrição */}

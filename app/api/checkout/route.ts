@@ -1,4 +1,3 @@
-// app/api/checkout/route.ts
 import { NextRequest, NextResponse } from 'next/server'
 import { MercadoPagoConfig, Preference } from 'mercadopago'
 import { createServiceSupabase } from '@/lib/supabase-server'
@@ -9,17 +8,19 @@ const mp = new MercadoPagoConfig({
 
 export async function POST(req: NextRequest) {
   try {
-    const { itens, cliente } = await req.json()
+    const { itens, cliente, frete } = await req.json()
 
     if (!itens || itens.length === 0) {
       return NextResponse.json({ erro: 'Carrinho vazio' }, { status: 400 })
     }
 
-    const total = itens.reduce(
+    const subtotal = itens.reduce(
       (s: number, i: any) => s + i.produto.preco * i.quantidade, 0
     )
+    const freteCentavos = frete?.preco || 0
+    const total = subtotal + freteCentavos
 
-    // Salva o pedido no Supabase com status "pendente"
+    // Salva pedido no Supabase
     const supabase = createServiceSupabase()
     const { data: pedido, error: erroPedido } = await supabase
       .from('pedidos')
@@ -27,8 +28,11 @@ export async function POST(req: NextRequest) {
         status: 'pendente',
         total,
         itens,
-        cliente_nome: cliente.nome,
-        cliente_email: cliente.email,
+        frete_nome:  frete?.nome || null,
+        frete_preco: freteCentavos,
+        frete_prazo: frete?.prazo || null,
+        cliente_nome:     cliente.nome,
+        cliente_email:    cliente.email,
         cliente_telefone: cliente.telefone || null,
       })
       .select()
@@ -38,38 +42,51 @@ export async function POST(req: NextRequest) {
 
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
 
-    // Cria a preferência de pagamento no Mercado Pago
+    // Monta itens para o MP
+    const mpItens = itens.map((item: any) => ({
+      id:          item.produto.id,
+      title:       item.produto.nome,
+      quantity:    item.quantidade,
+      unit_price:  item.produto.preco / 100,
+      currency_id: 'BRL',
+    }))
+
+    // Adiciona frete como item separado se houver
+    if (freteCentavos > 0) {
+      mpItens.push({
+        id:          'frete',
+        title:       `Frete — ${frete.nome}`,
+        quantity:    1,
+        unit_price:  freteCentavos / 100,
+        currency_id: 'BRL',
+      })
+    }
+
     const preference = new Preference(mp)
     const { id: preferenceId, init_point } = await preference.create({
       body: {
-        external_reference: pedido.id, // ID do pedido para o webhook
+        external_reference: pedido.id,
         payer: {
-          name: cliente.nome,
+          name:  cliente.nome,
           email: cliente.email,
         },
-        items: itens.map((item: any) => ({
-          id: item.produto.id,
-          title: item.produto.nome,
-          quantity: item.quantidade,
-          unit_price: item.produto.preco / 100, // MP trabalha em reais, não centavos
-          currency_id: 'BRL',
-        })),
+        items: mpItens,
         payment_methods: {
           excluded_payment_methods: [],
-          excluded_payment_types: [],
-          installments: 12, // Parcelamento em até 12x
+          excluded_payment_types:   [],
+          installments: 12,
         },
+        binary_mode: false,
         back_urls: {
           success: `${baseUrl}/pedido/sucesso`,
           failure: `${baseUrl}/pedido/falha`,
           pending: `${baseUrl}/pedido/pendente`,
         },
         auto_return: 'approved',
-        notification_url: `${baseUrl}/api/webhook`, // Webhook para confirmar pagamento
+        notification_url: `${baseUrl}/api/webhook`,
       },
     })
 
-    // Salva o preference_id no pedido
     await supabase
       .from('pedidos')
       .update({ mp_preference_id: preferenceId })
@@ -78,11 +95,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ url: init_point })
 
   } catch (err: any) {
-    console.error('Erro detalhado no checkout:', {
-      message: err.message,
-      stack: err.stack,
-      cause: err.cause,
-    })
+    console.error('Erro no checkout:', err)
     return NextResponse.json(
       { erro: err.message || 'Erro interno' },
       { status: 500 }
