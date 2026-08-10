@@ -342,10 +342,15 @@ export default function AdminPedidosPage() {
                       )}
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-text-dark truncate">{item.produto?.nome}</p>
+                        {item.variante && (
+                          <p className='text-xs text-forest-mid font-medium'>{item.variante.nome}</p>
+                        )}
                         <p className="text-xs text-text-light">Qtd: {item.quantidade}</p>
                       </div>
                       <span className="text-sm font-medium text-bark flex-shrink-0">
-                        {formatarPreco(item.produto?.preco * item.quantidade)}
+                        {formatarPreco(
+                          (item.variante ? item.variante.preco : item.produto?.preco) * item.quantidade
+                        )}
                       </span>
                     </div>
                   ))}

@@ -94,15 +94,18 @@ export default function Header() {
 
                     <div className="flex-1 min-w-0">
                       <p className="font-serif font-medium text-sm leading-tight truncate text-[#2A2218]">{item.produto.nome}</p>
+                      {item.variante && (
+                        <p className='text-xs text-text-light mt-0.5'>{item.variante.nome}</p>
+                      )}
                       <p className="text-xs text-[#8A7A60] mt-0.5">{item.produto.categoria}</p>
                       <div className="flex items-center gap-2 mt-2">
                         <button
-                          onClick={() => atualizarQuantidade(item.produto.id, item.quantidade - 1)}
+                          onClick={() => atualizarQuantidade(item.produto.id, item.variante?.id, item.quantidade - 1)}
                           className="w-6 h-6 rounded-full border border-[#D4C9B0] flex items-center justify-center text-sm hover:border-[#7b3728] transition-colors"
                         >−</button>
                         <span className="text-sm font-medium w-5 text-center">{item.quantidade}</span>
                         <button
-                          onClick={() => atualizarQuantidade(item.produto.id, item.quantidade + 1)}
+                          onClick={() => atualizarQuantidade(item.produto.id, item.variante?.id,  item.quantidade + 1)}
                           className="w-6 h-6 rounded-full border border-[#D4C9B0] flex items-center justify-center text-sm hover:border-[#7b3728] transition-colors"
                         >+</button>
                       </div>
@@ -113,7 +116,7 @@ export default function Header() {
                         {formatarPreco(item.produto.preco * item.quantidade)}
                       </span>
                       <button
-                        onClick={() => remover(item.produto.id)}
+                        onClick={() => remover(item.produto.id, item.variante?.id)}
                         className="text-[#8A7A60] hover:text-red-500 text-lg transition-colors"
                       >×</button>
                     </div>

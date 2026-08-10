@@ -164,10 +164,15 @@ export default function CheckoutPage() {
                 <div key={item.produto.id} className="flex justify-between gap-2 text-sm">
                   <span className="text-text-mid">
                     {item.produto.nome}
+                    {item.variante && (
+                      <span className='block text-xs text-text-light'>{item.variante.nome}</span>
+                    )}
                     <span className="text-text-light ml-1">×{item.quantidade}</span>
                   </span>
                   <span className="font-medium text-text-dark whitespace-nowrap">
-                    {formatarPreco(item.produto.preco * item.quantidade)}
+                    {formatarPreco(
+                      (item.variante? item.variante.preco : item.produto.preco) * item.quantidade
+                    )}
                   </span>
                 </div>
               ))}

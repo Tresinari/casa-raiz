@@ -5,6 +5,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 import { gerarSlug } from '@/lib/types'
+import GerenciadorVariantes from '@/components/admin/GerenciadorVariantes'
 
 const CATEGORIAS = ['Louças', 'Tapetes', 'Almofadas', 'Artigos Diversos', 'Peseiras ou Mantas', 'Mesa', 'Cama']
 
@@ -19,6 +20,7 @@ export default function EditarProdutoPage() {
   const [salvando, setSalvando] = useState(false)
   const [uploadando, setUploadando] = useState(false)
   const [erro, setErro] = useState('')
+  const [variantes, setVariantes] = useState<any[]>([])
 
   const [form, setForm] = useState({
     nome: '',
@@ -70,6 +72,14 @@ export default function EditarProdutoPage() {
       largura_cm: String(data.largura_cm || 30),
       comprimento_cm: String(data.comprimento_cm || 40),
     })
+
+    const { data: variantesData } = await supabase
+      .from('variantes')
+      .select('*')
+      .eq('produto_id', id)
+      .order('criado_em', { ascending: true })
+
+    setVariantes(variantesData || [])
 
     setImagens(data.imagens || [])
     setCarregando(false)
@@ -283,6 +293,13 @@ export default function EditarProdutoPage() {
           {erro && (
             <p className="text-sm text-red-500 bg-red-50 border border-red-100 rounded px-3 py-2">{erro}</p>
           )}
+
+          <div className='pt-4 border-t border-linen'>
+            <GerenciadorVariantes
+              produtoId={id}
+              variantesIniciais={variantes}
+            />
+          </div>
 
           <div className="flex gap-3 pt-2">
             <button type="submit" disabled={salvando || uploadando}

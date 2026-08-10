@@ -8,6 +8,7 @@ import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 import { gerarSlug } from '@/lib/types'
+import GerenciadorVariantes from '@/components/admin/GerenciadorVariantes'
 
 const CATEGORIAS = ['Louças', 'Tapetes', 'Almofadas', 'Artigos Diversos', 'Peseiras ou Mantas', 'Mesa', 'Cama']
 
@@ -31,6 +32,7 @@ export default function NovoProdutoPage() {
     comprimento_cm: '40',
   })
 
+  const [variantes, setVariantes] = useState<any[]>([])
   const [imagens, setImagens] = useState<string[]>([])
   const [uploadando, setUploadando] = useState(false)
   const [salvando, setSalvando] = useState(false)
