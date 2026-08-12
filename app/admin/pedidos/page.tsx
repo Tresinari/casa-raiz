@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 import { formatarPreco } from '@/lib/types'
+import AdminHeader from '@/components/admin/AdminHeader'
 
 type Pedido = {
   id: string
@@ -154,32 +155,7 @@ export default function AdminPedidosPage() {
     <div className="min-h-screen bg-cream">
 
       {/* Header */}
-      <header className="bg-forest text-off-white px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-6">
-          <span className="font-serif text-xl font-medium">
-            Casa <span className="text-gold-light">Raiz</span>
-            <span className="text-off-white/50 text-sm ml-3">Admin</span>
-          </span>
-        </div>
-        <nav className="hidden md:flex gap-4">
-            <button onClick={() => router.push('/admin/produtos')}
-              className="text-sm text-off-white/60 hover:text-off-white transition-colors">
-              Produtos
-            </button>
-            <button className="text-sm text-off-white font-medium border-b border-gold">
-              Pedidos
-            </button>
-          </nav>
-        <div className="flex gap-4 items-center">
-          <a href="/" target="_blank" className="text-sm text-off-white/60 hover:text-off-white transition-colors">
-            Ver loja ↗
-          </a>
-          <button onClick={async () => { await supabase.auth.signOut(); router.push('/admin/login') }}
-            className="text-sm text-off-white/60 hover:text-off-white transition-colors">
-            Sair
-          </button>
-        </div>
-      </header>
+      <AdminHeader />
 
       <main className="max-w-6xl mx-auto px-4 py-8">
 

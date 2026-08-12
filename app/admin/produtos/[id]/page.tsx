@@ -6,6 +6,7 @@ import { useRouter, useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 import { gerarSlug } from '@/lib/types'
 import GerenciadorVariantes from '@/components/admin/GerenciadorVariantes'
+import AdminHeader from '@/components/admin/AdminHeader'
 
 const CATEGORIAS = ['Louças', 'Tapetes', 'Almofadas', 'Artigos Diversos', 'Peseiras ou Mantas', 'Mesa', 'Cama']
 
@@ -179,12 +180,7 @@ export default function EditarProdutoPage() {
 
   return (
     <div className="min-h-screen bg-cream">
-      <header className="bg-forest text-off-white px-6 py-4 flex items-center justify-between">
-        <h1 className="font-serif text-xl font-medium">Editar produto</h1>
-        <button onClick={() => router.back()} className="text-sm text-off-white/70 hover:text-off-white">
-          ← Voltar
-        </button>
-      </header>
+      <AdminHeader />
 
       <main className="max-w-2xl mx-auto px-4 py-8">
         <form onSubmit={handleSalvar} className="space-y-6">
