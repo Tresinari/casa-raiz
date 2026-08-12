@@ -3,6 +3,7 @@ import { createServerSupabase } from '@/lib/supabase-server'
 import Header from '@/components/loja/Header'
 import BotaoAdicionarCarrinho from '@/components/loja/BotaoAdicionarCarrinho'
 import { formatarPreco, precoMinimo } from '@/lib/types'
+import GaleriaProduto from '@/components/loja/GaleriaProduto'
 
 export default async function ProdutoPage({ params }: { params: { slug: string } }) {
   const supabase = createServerSupabase()
@@ -29,29 +30,10 @@ export default async function ProdutoPage({ params }: { params: { slug: string }
         <div className="grid md:grid-cols-2 gap-10">
 
           {/* GALERIA */}
-          <div>
-            <div className="aspect-square bg-cream rounded overflow-hidden mb-2 border border-linen">
-              {produto.imagens?.[0] ? (
-                <img
-                  src={produto.imagens[0]}
-                  alt={produto.nome}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-7xl text-linen">🏠</div>
-              )}
-            </div>
-            {produto.imagens?.length > 1 && (
-              <div className="grid grid-cols-4 gap-2">
-                {produto.imagens.map((url: string, i: number) => (
-                  <div key={i} className="aspect-square rounded overflow-hidden border border-linen">
-                    <img src={url} alt={`${produto.nome} ${i + 1}`}
-                      className="w-full h-full object-cover" />
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+          <GaleriaProduto 
+            imagens={produto.imagens || []}
+            nomeProduto={produto.nome}
+          />
 
           {/* INFORMAÇÕES */}
           <div>
