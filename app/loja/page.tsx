@@ -16,7 +16,7 @@ export default async function LojaPage({
 
   let query = supabase
     .from('produtos')
-    .select('*')
+    .select('*, variantes(*)')
     .eq('ativo', true)
     .order('criado_em', { ascending: false })
 

@@ -8,7 +8,7 @@ const mp = new MercadoPagoConfig({
 
 export async function POST(req: NextRequest) {
   try {
-    const { itens, cliente, frete } = await req.json()
+    const { itens, cliente, frete, cupom } = await req.json()
 
     if (!itens || itens.length === 0) {
       return NextResponse.json({ erro: 'Carrinho vazio' }, { status: 400 })
@@ -34,11 +34,17 @@ export async function POST(req: NextRequest) {
         cliente_nome:     cliente.nome,
         cliente_email:    cliente.email,
         cliente_telefone: cliente.telefone || null,
+        cupom_codigo: cupom?.codigo || null,
+        cupom_desconto: cupom?.desconto_centavos || 0,
       })
       .select()
       .single()
 
     if (erroPedido) throw new Error(erroPedido.message)
+
+    if (cupom?.id) {
+      await supabase.rpc('incrementar_uso_cupom', { cupom_id: cupom.id })
+    }
 
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
 

@@ -1,5 +1,6 @@
 'use client'
 
+// components/admin/AdminHeader.tsx
 import { useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
@@ -7,6 +8,7 @@ import { createClient } from '@/lib/supabase'
 const LINKS = [
   { label: 'Produtos', href: '/admin/produtos' },
   { label: 'Pedidos',  href: '/admin/pedidos' },
+  { label: 'Cupons',   href: '/admin/cupons' },
 ]
 
 export default function AdminHeader() {
@@ -28,8 +30,6 @@ export default function AdminHeader() {
   return (
     <>
       <header className="bg-forest text-off-white px-4 md:px-6 py-4 flex items-center justify-between relative z-50">
-
-        {/* Logo */}
         <span className="font-serif text-xl font-medium flex-shrink-0">
           Casa <span className="text-gold-light">Raiz</span>
           <span className="text-off-white/50 text-sm ml-2 hidden sm:inline">Admin</span>
@@ -52,7 +52,6 @@ export default function AdminHeader() {
           ))}
         </nav>
 
-        {/* Ações desktop */}
         <div className="hidden md:flex gap-4 items-center">
           <a href="/" target="_blank"
             className="text-sm text-off-white/60 hover:text-off-white transition-colors">
@@ -64,25 +63,19 @@ export default function AdminHeader() {
           </button>
         </div>
 
-        {/* Botão hambúrguer — só mobile */}
+        {/* Hambúrguer */}
         <button
           onClick={() => setMenuAberto(v => !v)}
-          className="md:hidden flex flex-col gap-1.5 p-2 rounded transition-colors hover:bg-white/10"
+          className="md:hidden flex flex-col gap-1.5 p-2 rounded hover:bg-white/10"
           aria-label="Menu"
         >
-          <span className={`block w-5 h-0.5 bg-off-white transition-all duration-300 ${
-            menuAberto ? 'rotate-45 translate-y-2' : ''
-          }`} />
-          <span className={`block w-5 h-0.5 bg-off-white transition-all duration-300 ${
-            menuAberto ? 'opacity-0' : ''
-          }`} />
-          <span className={`block w-5 h-0.5 bg-off-white transition-all duration-300 ${
-            menuAberto ? '-rotate-45 -translate-y-2' : ''
-          }`} />
+          <span className={`block w-5 h-0.5 bg-off-white transition-all duration-300 ${menuAberto ? 'rotate-45 translate-y-2' : ''}`} />
+          <span className={`block w-5 h-0.5 bg-off-white transition-all duration-300 ${menuAberto ? 'opacity-0' : ''}`} />
+          <span className={`block w-5 h-0.5 bg-off-white transition-all duration-300 ${menuAberto ? '-rotate-45 -translate-y-2' : ''}`} />
         </button>
       </header>
 
-      {/* Menu mobile — dropdown */}
+      {/* Menu mobile */}
       {menuAberto && (
         <div className="md:hidden bg-[#1a2e18] border-b border-forest/50 px-4 py-3 space-y-1 z-40">
           {LINKS.map(link => (
@@ -98,19 +91,13 @@ export default function AdminHeader() {
               {link.label}
             </button>
           ))}
-
           <div className="border-t border-white/10 pt-2 mt-2 flex gap-2">
-            <a
-              href="/"
-              target="_blank"
-              className="flex-1 text-center px-3 py-2 text-sm text-off-white/60 hover:text-off-white transition-colors"
-            >
+            <a href="/" target="_blank"
+              className="flex-1 text-center px-3 py-2 text-sm text-off-white/60 hover:text-off-white">
               Ver loja ↗
             </a>
-            <button
-              onClick={logout}
-              className="flex-1 text-center px-3 py-2 text-sm text-off-white/60 hover:text-off-white transition-colors"
-            >
+            <button onClick={logout}
+              className="flex-1 text-center px-3 py-2 text-sm text-off-white/60 hover:text-off-white">
               Sair
             </button>
           </div>

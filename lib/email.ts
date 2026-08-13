@@ -229,7 +229,7 @@ export async function enviarBoasVindasNewsletter(email: string) {
         Seu cupom de boas-vindas
       </p>
       <p style="margin:0 0 4px;font-family:Georgia,serif;font-size:28px;font-weight:600;color:#E8C97A;letter-spacing:0.1em;">
-        BEMVINDA10
+        BEMVINDO10
       </p>
       <p style="margin:0;font-size:13px;color:rgba(244,216,197,0.8);">
         10% de desconto na primeira compra

@@ -22,7 +22,7 @@ export default async function Home() {
   // Busca produtos em destaque
   const { data: destaques } = await supabase
     .from('produtos')
-    .select('*')
+    .select('*, variantes(*)')
     .eq('ativo', true)
     .eq('destaque', true)
     .order('criado_em', { ascending: false })
