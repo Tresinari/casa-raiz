@@ -140,6 +140,7 @@ export default function GerenciadorVariantes({ produtoId, variantesIniciais }: P
               </div>
               <div className="flex gap-2 flex-shrink-0">
                 <button
+                  type='button'
                   onClick={() => toggleAtivo(v)}
                   className={`text-[11px] px-2 py-0.5 rounded-full border ${
                     v.ativo
@@ -150,12 +151,14 @@ export default function GerenciadorVariantes({ produtoId, variantesIniciais }: P
                   {v.ativo ? 'Ativa' : 'Inativa'}
                 </button>
                 <button
+                  type='button'
                   onClick={() => iniciarEdicao(v)}
                   className="text-xs text-forest hover:underline"
                 >
                   Editar
                 </button>
                 <button
+                  type='button'
                   onClick={() => excluir(v.id)}
                   className="text-xs text-red-400 hover:text-red-600"
                 >

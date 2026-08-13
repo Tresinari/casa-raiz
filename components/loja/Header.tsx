@@ -113,7 +113,7 @@ export default function Header() {
 
                     <div className="flex flex-col items-end justify-between flex-shrink-0">
                       <span className="text-sm font-medium text-[#5C4A2A]">
-                        {formatarPreco(item.produto.preco * item.quantidade)}
+                        {formatarPreco((item.variante ? item.variante.preco : item.produto.preco) * item.quantidade)}
                       </span>
                       <button
                         onClick={() => remover(item.produto.id, item.variante?.id)}
