@@ -13,7 +13,7 @@ export default function CardProduto({ produto }: { produto: Produto }) {
   const diasDesde = Math.floor(
     (Date.now() - new Date(produto.criado_em).getTime()) / (1000 * 60 * 60 * 24)
   )
-  const ehNovo = diasDesde <= 20
+  const ehNovo = diasDesde <= 15
 
   return (
     <div className="card group cursor-pointer">
