@@ -1,9 +1,12 @@
+// lib/types.ts
+
 export type Variante = {
   id: string
   produto_id: string
   nome: string
   preco: number
   estoque: number
+  imagens?: string[]   // galeria própria da variante
   peso_gramas?: number
   altura_cm?: number
   largura_cm?: number
@@ -66,7 +69,6 @@ export function gerarSlug(nome: string): string {
     .replace(/\s+/g, '-')
 }
 
-// Retorna o menor preço entre as variantes, ou o preço do produto
 export function precoMinimo(produto: Produto): number {
   if (produto.variantes && produto.variantes.length > 0) {
     return Math.min(...produto.variantes.map(v => v.preco))
