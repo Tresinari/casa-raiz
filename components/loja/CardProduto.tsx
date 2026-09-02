@@ -10,6 +10,10 @@ export default function CardProduto({ produto }: { produto: Produto }) {
   const temVariantes = produto.variantes && produto.variantes.length > 0
   const temDesconto = produto.preco_original && produto.preco_original > produto.preco
   const preco = precoMinimo(produto)
+  const diasDesde = Math.floor(
+    (Date.now() - new Date(produto.criado_em).getTime()) / (1000 * 60 * 60 * 24)
+  )
+  const ehNovo = diasDesde <= 20
 
   return (
     <div className="card group cursor-pointer">
@@ -31,7 +35,7 @@ export default function CardProduto({ produto }: { produto: Produto }) {
               Promoção
             </span>
           )}
-          {produto.destaque && !temDesconto && (
+          {ehNovo && !temDesconto && (
             <span className="absolute top-2 left-2 bg-forest text-off-white text-[10px] tracking-wider uppercase px-2 py-1 rounded-sm">
               Novo
             </span>
