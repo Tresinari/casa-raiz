@@ -197,15 +197,15 @@ export default function NovoProdutoPage() {
               </div>
               <div>
                 <label className='block text-[11px] text-text-light mb-1'>Altura (cm)</label>
-                <input name="peso_gramas" type="number" min="1" className='input' value={form.altura_cm} onChange={handleChange} placeholder='10'/>
+                <input name="altura_cm" type="number" min="1" className='input' value={form.altura_cm} onChange={handleChange} placeholder='10'/>
               </div>
               <div>
                 <label className='block text-[11px] text-text-light mb-1'>Largura (cm)</label>
-                <input name="peso_gramas" type="number" min="1" className='input' value={form.largura_cm} onChange={handleChange} placeholder='30'/>
+                <input name="largura_cm" type="number" min="1" className='input' value={form.largura_cm} onChange={handleChange} placeholder='30'/>
               </div>
               <div>
                 <label className='block text-[11px] text-text-light mb-1'>Comprimento (cm)</label>
-                <input name="peso_gramas" type="number" min="1" className='input' value={form.comprimento_cm} onChange={handleChange} placeholder='40'/>
+                <input name="comprimento_cm" type="number" min="1" className='input' value={form.comprimento_cm} onChange={handleChange} placeholder='40'/>
               </div>
             </div>
             <p className='text-[11px] text-text-light mt-1.5'>Medidas da embalagem de envio, não do produto</p>
