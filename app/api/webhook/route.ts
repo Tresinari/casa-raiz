@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { MercadoPagoConfig, Payment } from 'mercadopago'
 import { createServiceSupabase } from '@/lib/supabase-server'
-import { enviarConfirmacaoPedido } from '@/lib/email'
+import { enviarConfirmacaoPedido, enviarNovoPedidoAdmin } from '@/lib/email'
 
 const mp = new MercadoPagoConfig({
   accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN!,
@@ -64,6 +64,14 @@ export async function POST(req: NextRequest) {
         await enviarConfirmacaoPedido({
           id: pedido.id,
           cliente_nome: pedido.cliente_nome,
+          cliente_email: pedido.cliente_email,
+          total: pedido.total,
+          itens: pedido.itens,
+        })
+
+        await enviarNovoPedidoAdmin({
+          id: pedido.id,
+          cliente_nome: pedido.cliente.nome,
           cliente_email: pedido.cliente_email,
           total: pedido.total,
           itens: pedido.itens,

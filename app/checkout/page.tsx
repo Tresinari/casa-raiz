@@ -4,13 +4,11 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Header from '@/components/loja/Header'
-import CalculadoraFrete from '@/components/loja/CalculadoraFrete'
 import CampoCupom from '@/components/loja/CampoCupom'
 import { useCarrinho } from '@/hooks/useCarrinho'
 import { formatarPreco } from '@/lib/types'
 import type { OpcaoFrete } from '@/app/api/frete/route'
 
-// Tipo do cupom aplicado
 type CupomAplicado = {
   id: string
   codigo: string
@@ -19,7 +17,9 @@ type CupomAplicado = {
   desconto_centavos: number
 }
 
-const FRETE_GRATIS_ACIMA = 20000 // R$ 200,00 em centavos
+type OpcaoFreteState = OpcaoFrete & { calculando?: boolean }
+
+const FRETE_GRATIS_ACIMA = 20000
 
 export default function CheckoutPage() {
   const router = useRouter()
@@ -27,12 +27,22 @@ export default function CheckoutPage() {
   const [enviando, setEnviando] = useState(false)
   const [erro, setErro] = useState('')
   const [freteSelecionado, setFreteSelecionado] = useState<OpcaoFrete | null>(null)
+  const [opcoesFretes, setOpcoesFretes] = useState<OpcaoFrete[]>([])
+  const [calculandoFrete, setCalculandoFrete] = useState(false)
+  const [erroFrete, setErroFrete] = useState('')
   const [cupomAplicado, setCupomAplicado] = useState<CupomAplicado | null>(null)
 
   const [form, setForm] = useState({
     nome: '',
     email: '',
     telefone: '',
+    cep: '',
+    rua: '',
+    numero: '',
+    complemento: '',
+    bairro: '',
+    cidade: '',
+    estado: '',
   })
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -57,6 +67,53 @@ export default function CheckoutPage() {
     largura_cm:     item.variante?.largura_cm ?? (item.produto as any).largura_cm,
     comprimento_cm: item.variante?.comprimento_cm ?? (item.produto as any).comprimento_cm,
   }))
+
+  async function buscarCep(cep: string) {
+    const limpo = cep.replace(/\D/g, '')
+    if (limpo.length !== 8) return
+
+    // Busca endereço
+    const res = await fetch(`https://viacep.com.br/ws/${limpo}/json/`)
+    const data = await res.json()
+    if (!data.erro) {
+      setForm(f => ({
+        ...f,
+        rua:    data.logradouro,
+        bairro: data.bairro,
+        cidade: data.localidade,
+        estado: data.uf,
+      }))
+    }
+
+    // Calcula frete automaticamente se não for grátis
+    if (!freteGratis) {
+      setCalculandoFrete(true)
+      setErroFrete('')
+      setFreteSelecionado(null)
+      setOpcoesFretes([])
+
+      try {
+        const freteRes = await fetch('/api/frete', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ cep_destino: limpo, produtos: produtosParaFrete }),
+        })
+        const freteData = await freteRes.json()
+
+        if (!freteRes.ok || freteData.erro) {
+          setErroFrete(freteData.erro || 'Não foi possível calcular o frete.')
+        } else if (freteData.opcoes.length === 0) {
+          setErroFrete('Nenhuma opção de frete disponível para este CEP.')
+        } else {
+          setOpcoesFretes(freteData.opcoes)
+        }
+      } catch {
+        setErroFrete('Erro ao calcular frete. Verifique o CEP.')
+      } finally {
+        setCalculandoFrete(false)
+      }
+    }
+  }
 
   async function handleFinalizar(e: React.FormEvent) {
     e.preventDefault()
@@ -120,67 +177,199 @@ export default function CheckoutPage() {
 
           {/* Formulário */}
           <div className="space-y-6">
+            <form onSubmit={handleFinalizar} className="space-y-6">
 
-            {/* Dados pessoais */}
-            <div>
-              <h2 className="font-serif text-xl font-medium mb-4">Seus dados</h2>
-              <form onSubmit={handleFinalizar} className="space-y-4">
+              {/* Dados pessoais */}
+              <div>
+                <h2 className="font-serif text-xl font-medium mb-4">Seus dados</h2>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-xs tracking-wider uppercase text-text-light mb-1.5">Nome completo *</label>
+                    <input name="nome" className="input" value={form.nome}
+                      onChange={handleChange} placeholder="Maria Silva" required />
+                  </div>
+                  <div>
+                    <label className="block text-xs tracking-wider uppercase text-text-light mb-1.5">E-mail *</label>
+                    <input name="email" type="email" className="input" value={form.email}
+                      onChange={handleChange} placeholder="maria@email.com" required />
+                  </div>
+                  <div>
+                    <label className="block text-xs tracking-wider uppercase text-text-light mb-1.5">WhatsApp</label>
+                    <input name="telefone" className="input" value={form.telefone}
+                      onChange={handleChange} placeholder="(11) 99999-9999" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Endereço */}
+              <div>
+                <h2 className="font-serif text-xl font-medium mb-4">Endereço de entrega</h2>
+                <div className="space-y-3">
+
+                  {/* CEP — aciona busca de endereço + cálculo de frete */}
+                  <div>
+                    <label className="block text-xs tracking-wider uppercase text-text-light mb-1.5">CEP *</label>
+                    <div className="relative">
+                      <input
+                        name="cep"
+                        className="input"
+                        value={form.cep}
+                        onChange={e => {
+                          const v = e.target.value.replace(/\D/g, '').slice(0, 8)
+                          const fmt = v.length > 5 ? `${v.slice(0, 5)}-${v.slice(5)}` : v
+                          setForm(f => ({ ...f, cep: fmt }))
+                          if (v.length === 8) buscarCep(v)
+                        }}
+                        placeholder="00000-000"
+                        maxLength={9}
+                        required
+                      />
+                      {calculandoFrete && (
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-text-light">
+                          Calculando frete...
+                        </span>
+                      )}
+                    </div>
+                    <a href="https://buscacepinter.correios.com.br" target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[11px] text-text-light hover:text-forest transition-colors mt-1 inline-block">
+                      Não sei meu CEP →
+                    </a>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs tracking-wider uppercase text-text-light mb-1.5">Rua *</label>
+                    <input name="rua" className="input" value={form.rua}
+                      onChange={handleChange} placeholder="Rua das Flores" required />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs tracking-wider uppercase text-text-light mb-1.5">Número *</label>
+                      <input name="numero" className="input" value={form.numero}
+                        onChange={handleChange} placeholder="123" required />
+                    </div>
+                    <div>
+                      <label className="block text-xs tracking-wider uppercase text-text-light mb-1.5">Complemento</label>
+                      <input name="complemento" className="input" value={form.complemento}
+                        onChange={handleChange} placeholder="Apto 4B" />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs tracking-wider uppercase text-text-light mb-1.5">Bairro *</label>
+                    <input name="bairro" className="input" value={form.bairro}
+                      onChange={handleChange} placeholder="Centro" required />
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="col-span-2">
+                      <label className="block text-xs tracking-wider uppercase text-text-light mb-1.5">Cidade *</label>
+                      <input name="cidade" className="input" value={form.cidade}
+                        onChange={handleChange} placeholder="São Paulo" required />
+                    </div>
+                    <div>
+                      <label className="block text-xs tracking-wider uppercase text-text-light mb-1.5">Estado *</label>
+                      <input name="estado" className="input" value={form.estado}
+                        onChange={handleChange} placeholder="SP" maxLength={2} required />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Opções de frete — aparecem automaticamente após CEP */}
+              {(freteGratis || opcoesFretes.length > 0 || erroFrete || calculandoFrete) && (
                 <div>
-                  <label className="block text-xs tracking-wider uppercase text-text-light mb-1.5">Nome completo *</label>
-                  <input name="nome" className="input" value={form.nome}
-                    onChange={handleChange} placeholder="Maria Silva" required />
-                </div>
-                <div>
-                  <label className="block text-xs tracking-wider uppercase text-text-light mb-1.5">E-mail *</label>
-                  <input name="email" type="email" className="input" value={form.email}
-                    onChange={handleChange} placeholder="maria@email.com" required />
-                </div>
-                <div>
-                  <label className="block text-xs tracking-wider uppercase text-text-light mb-1.5">WhatsApp</label>
-                  <input name="telefone" className="input" value={form.telefone}
-                    onChange={handleChange} placeholder="(11) 99999-9999" />
-                </div>
+                  <h2 className="font-serif text-xl font-medium mb-3">Entrega</h2>
 
-                {/* Frete */}
-                <div className="pt-2">
-                  <h2 className="font-serif text-xl font-medium mb-2">Entrega</h2>
-                  <CalculadoraFrete
-                    produtos={produtosParaFrete}
-                    onSelecionar={setFreteSelecionado}
-                    fretesSelecionado={freteSelecionado}
-                    freteGratis={freteGratis}
-                  />
+                  {freteGratis && (
+                    <div className="flex items-center gap-3 bg-forest/10 border border-forest/20 rounded p-4">
+                      <span className="text-2xl">🎉</span>
+                      <div>
+                        <p className="text-sm font-medium text-forest">Frete grátis!</p>
+                        <p className="text-xs text-text-light mt-0.5">Sua compra tem frete grátis.</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {calculandoFrete && (
+                    <div className="text-sm text-text-light py-2">Calculando opções de frete...</div>
+                  )}
+
+                  {erroFrete && (
+                    <p className="text-sm text-red-500">{erroFrete}</p>
+                  )}
+
+                  {opcoesFretes.length > 0 && !freteGratis && (
+                    <div className="space-y-2">
+                      {opcoesFretes.map(op => (
+                        <div
+                          key={op.id}
+                          onClick={() => setFreteSelecionado(op)}
+                          className={`flex items-center gap-3 p-3 rounded border transition-all cursor-pointer ${
+                            freteSelecionado?.id === op.id
+                              ? 'border-forest bg-forest/5'
+                              : 'border-linen hover:border-forest/40 bg-off-white'
+                          }`}
+                        >
+                          {op.logo ? (
+                            <img src={op.logo} alt={op.empresa}
+                              className="w-8 h-8 object-contain flex-shrink-0" />
+                          ) : (
+                            <div className="w-8 h-8 bg-cream rounded flex-shrink-0" />
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-text-dark">{op.nome}</p>
+                            <p className="text-xs text-text-light">{op.empresa} · {op.prazo} dias úteis</p>
+                          </div>
+                          <div className="text-right flex-shrink-0">
+                            <p className="text-sm font-medium text-bark">
+                              {parseFloat(op.preco) === 0 ? 'Grátis' : new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(parseFloat(op.preco))}
+                            </p>
+                          </div>
+                          <div className={`w-4 h-4 rounded-full border-2 flex-shrink-0 transition-colors ${
+                            freteSelecionado?.id === op.id ? 'border-forest bg-forest' : 'border-linen'
+                          }`} />
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
+              )}
 
-                {/* Cupom */}
-                <div className="pt-2">
-                  <h2 className="font-serif text-xl font-medium mb-2">Cupom de desconto</h2>
-                  <CampoCupom
-                    totalCentavos={totalComFrete}
-                    onAplicar={setCupomAplicado}
-                    cupomAplicado={cupomAplicado}
-                  />
-                </div>
+              {/* Cupom */}
+              <div>
+                <h2 className="font-serif text-xl font-medium mb-2">Cupom de desconto</h2>
+                <CampoCupom
+                  totalCentavos={totalComFrete}
+                  onAplicar={setCupomAplicado}
+                  cupomAplicado={cupomAplicado}
+                />
+              </div>
 
-                {erro && (
-                  <p className="text-sm text-red-500 bg-red-50 border border-red-100 rounded px-3 py-2">{erro}</p>
-                )}
+              {erro && (
+                <p className="text-sm text-red-500 bg-red-50 border border-red-100 rounded px-3 py-2">{erro}</p>
+              )}
 
-                <button
-                  type="submit"
-                  disabled={enviando || (!freteGratis && !freteSelecionado)}
-                  className="w-full btn-gold disabled:opacity-50 disabled:cursor-not-allowed py-4 text-sm"
-                >
-                  {enviando ? 'Aguarde...' : '🔒 Ir para o pagamento'}
-                </button>
+              <button
+                type="submit"
+                disabled={enviando || (!freteGratis && !freteSelecionado)}
+                className="w-full btn-gold disabled:opacity-50 disabled:cursor-not-allowed py-4 text-sm"
+              >
+                {enviando ? 'Aguarde...' : '🔒 Ir para o pagamento'}
+              </button>
 
-                {!freteGratis && !freteSelecionado && (
-                  <p className="text-center text-xs text-text-light">
-                    Calcule o frete para continuar
-                  </p>
-                )}
-              </form>
-            </div>
+              {!freteGratis && !freteSelecionado && form.cep.length < 9 && (
+                <p className="text-center text-xs text-text-light">
+                  Preencha o CEP para calcular o frete
+                </p>
+              )}
+              {!freteGratis && !freteSelecionado && form.cep.length === 9 && opcoesFretes.length > 0 && (
+                <p className="text-center text-xs text-text-light">
+                  Selecione uma opção de frete para continuar
+                </p>
+              )}
+            </form>
           </div>
 
           {/* Resumo */}
@@ -188,7 +377,6 @@ export default function CheckoutPage() {
             <h2 className="font-serif text-xl font-medium mb-4">Resumo do pedido</h2>
             <div className="bg-off-white border border-linen rounded p-4 space-y-3 sticky top-20">
 
-              {/* Itens */}
               {itens.map(item => {
                 const preco = item.variante ? item.variante.preco : item.produto.preco
                 return (
@@ -209,14 +397,11 @@ export default function CheckoutPage() {
               })}
 
               <div className="border-t border-linen pt-3 space-y-2">
-
-                {/* Subtotal */}
                 <div className="flex justify-between text-sm text-text-mid">
                   <span>Subtotal</span>
                   <span>{formatarPreco(totalCentavos)}</span>
                 </div>
 
-                {/* Frete */}
                 <div className="flex justify-between text-sm text-text-mid">
                   <span>{freteSelecionado ? freteSelecionado.nome : 'Frete'}</span>
                   <span>
@@ -229,7 +414,12 @@ export default function CheckoutPage() {
                   </span>
                 </div>
 
-                {/* Desconto cupom */}
+                {freteSelecionado && !freteGratis && (
+                  <p className="text-xs text-text-light">
+                    Prazo estimado: {freteSelecionado.prazo} dias úteis
+                  </p>
+                )}
+
                 {cupomAplicado && (
                   <div className="flex justify-between text-sm text-forest">
                     <span>Cupom {cupomAplicado.codigo}</span>
@@ -238,23 +428,14 @@ export default function CheckoutPage() {
                 )}
               </div>
 
-              {/* Total final */}
               <div className="border-t border-linen pt-3 flex justify-between font-serif text-lg font-medium">
                 <span>Total</span>
                 <span className="text-bark">{formatarPreco(totalFinal)}</span>
               </div>
 
-              {/* Pix */}
               <div className="bg-forest/5 border border-forest/20 rounded p-3 text-sm text-forest-mid">
-                ⚡ Pagando com Pix:{' '}
-                <strong>{formatarPreco(totalPix)}</strong> (5% off)
+                ⚡ Pagando com Pix: <strong>{formatarPreco(totalPix)}</strong> (5% off)
               </div>
-
-              {freteSelecionado && !freteGratis && (
-                <p className="text-xs text-text-light text-center">
-                  Prazo estimado: {freteSelecionado.prazo} dias úteis
-                </p>
-              )}
             </div>
           </div>
 

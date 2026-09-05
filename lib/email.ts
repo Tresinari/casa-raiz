@@ -303,3 +303,75 @@ export async function enviarCodigoRastreio(
   if (error) console.error('Erro ao enviar rastreio:', error)
   return !error
 }
+
+export async function enviarNovoPedidoAdmin(pedido: DadosPedido) {
+  const adminEmail = process.env.EMAIL_ADMIN
+  if (!adminEmail) return
+
+  const itensHtml = pedido.itens.map(item => `
+    <tr>
+      <td style="padding:8px 0;border-bottom:1px solid #EDE6D6;font-size:13px;color:#2A2218;font-family:Georgia,serif;">
+        ${item.produto?.nome}
+        ${(item as any).variante ? `<span style="color:#8A7A60;font-size:12px;"> — ${(item as any).variante.nome}</span>` : ''}
+        <span style="color:#8A7A60;"> × ${item.quantidade}</span>
+      </td>
+      <td align="right" style="padding:8px 0;border-bottom:1px solid #EDE6D6;font-size:13px;font-weight:600;color:#5C4A2A;white-space:nowrap;">
+        ${formatarPreco(((item as any).variante ? (item as any).variante.preco : item.produto?.preco) * item.quantidade)}
+      </td>
+    </tr>
+  `).join('')
+
+  const conteudo = `
+    <h2 style="margin:0 0 6px;font-family:Georgia,serif;font-size:24px;font-weight:500;color:#2D4A2A;">
+      🛍️ Novo pedido recebido!
+    </h2>
+    <p style="margin:0 0 20px;font-size:14px;color:#5C4E38;line-height:1.6;">
+      Um novo pedido chegou e aguarda preparação.
+    </p>
+
+    <div style="background:#F5F0E8;border:1px solid #D4C9B0;border-radius:6px;padding:14px 18px;margin-bottom:20px;">
+      <p style="margin:0;font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:#8A7A60;">Número do pedido</p>
+      <p style="margin:4px 0 0;font-size:18px;font-weight:700;color:#2A2218;font-family:monospace;">
+        #${pedido.id.slice(0, 8).toUpperCase()}
+      </p>
+    </div>
+
+    <div style="background:#F5F0E8;border:1px solid #D4C9B0;border-radius:6px;padding:14px 18px;margin-bottom:20px;">
+      <p style="margin:0;font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:#8A7A60;">Cliente</p>
+      <p style="margin:4px 0 0;font-size:15px;font-weight:600;color:#2A2218;">${pedido.cliente_nome}</p>
+      <p style="margin:2px 0 0;font-size:13px;color:#5C4E38;">${pedido.cliente_email}</p>
+    </div>
+
+    <h3 style="margin:0 0 10px;font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#8A7A60;font-weight:400;">
+      Itens do pedido
+    </h3>
+    <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:16px;">
+      ${itensHtml}
+    </table>
+
+    <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
+      <tr>
+        <td style="font-family:Georgia,serif;font-size:18px;font-weight:500;color:#2A2218;padding-top:12px;border-top:2px solid #D4C9B0;">
+          Total recebido
+        </td>
+        <td align="right" style="font-family:Georgia,serif;font-size:18px;font-weight:500;color:#5C4A2A;padding-top:12px;border-top:2px solid #D4C9B0;">
+          ${formatarPreco(pedido.total)}
+        </td>
+      </tr>
+    </table>
+
+    <a href="${process.env.NEXT_PUBLIC_BASE_URL}/admin/pedidos"
+      style="background:#2D4A2A;color:#F4D8C5;text-decoration:none;font-size:12px;letter-spacing:0.12em;text-transform:uppercase;padding:12px 24px;border-radius:4px;display:inline-block;">
+      Ver pedido no painel →
+    </a>
+  `
+
+  const { error } = await resend.emails.send({
+    from: FROM,
+    to: adminEmail,
+    subject: `🛍️ Novo pedido #${pedido.id.slice(0, 8).toUpperCase()} — ${formatarPreco(pedido.total)}`,
+    html: templateBase(conteudo),
+  })
+
+  if (error) console.error('Erro ao notificar admin:', error)
+}
